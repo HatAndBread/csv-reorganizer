@@ -27,7 +27,15 @@ function App() {
     //@ts-expect-error fuck off
     const sorted = rows.toSorted(
       //@ts-expect-error fuck off
-      (a, b) => a[index].localeCompare(b[index]) * multiplier
+      (a, b) => {
+        if (isNumeric(a?.[index]) && isNumeric(b?.[index])) {
+          const a2 = parseFloat(a[index]);
+          const b2 = parseFloat(b[index]);
+          return (a2 - b2) * multiplier
+        } else {
+          return (a?.[index]?.localeCompare(b?.[index]) || 0) * multiplier
+        }
+      }
     );
 
     const csvString = sorted.map((arr: string[]) => arr.join(",")).join("\n");
@@ -133,5 +141,14 @@ function App() {
     </>
   );
 }
+
+//@ts-expect-error fuck off
+function isNumeric(str) {
+  if (typeof str != "string") return false // we only process strings!  
+    //@ts-expect-error fuck off
+  return !isNaN(str) && // use type coercion to parse the _entirety_ of the string (`parseFloat` alone does not do this)...
+         !isNaN(parseFloat(str)) // ...and ensure strings of whitespace fail
+}
+
 
 export default App
